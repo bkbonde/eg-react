@@ -12,6 +12,9 @@ import DisplayedRegionModel from './model/DisplayedRegionModel';
 import './App.css';
 
 import Perf from 'react-addons-perf';
+import VrDisplay from './components/VrDisplay';
+import withDataFetching from './components/withDataFetching';
+import BigWigSource from './dataSources/BigWigSource';
 
 if (process.env.NODE_ENV === 'development') {
     window.Perf = Perf;
@@ -24,7 +27,7 @@ const DEFAULT_TRACKS = [
     new TrackModel({
         type: "bigwig",
         name: "GSM429321.bigWig",
-        url: "http://vizhub.wustl.edu/hubSample/hg19/GSM429321.bigWig",
+        url: "http://egg.wustl.edu/d/hg19/GSM669616.bigWig" //"http://vizhub.wustl.edu/hubSample/hg19/GSM429321.bigWig",
     }),
     new TrackModel({
         type: "hammock",
@@ -38,6 +41,8 @@ const DEFAULT_TRACKS = [
 ];
 
 const HG19_CONTEXT = HG19.makeNavContext();
+
+const DataVr = withDataFetching(VrDisplay, () => new BigWigSource("http://egg.wustl.edu/d/hg19/GSM669616.bigWig"));
 
 class App extends React.Component {
     constructor(props) {
@@ -99,6 +104,7 @@ class App extends React.Component {
                 onNewRegion={this.regionSelected}
                 onTracksChanged={(newTracks) => this.setState({currentTracks: newTracks})}
             />
+            <DataVr viewRegion={this.state.selectedRegion} viewExpansionValue={2} />
             <TrackManager
                 addedTracks={this.state.currentTracks}
                 onTrackAdded={this.addTrack}
