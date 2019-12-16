@@ -1,3 +1,12 @@
+## UCB instance of WashU browser
+#To Do:
+  1) Re deploy as a local instance
+  2) understand the javascript dependency and add user login relms
+  3) test for UI/UX similification (Remove compnents not needed)
+  
+
+
+
 # WashU Epigenome Browser
 
 ![WashU Epigenome Browser Logo](https://eg.readthedocs.io/en/latest/_images/eg.png "WashU Epigenome Browser")
