@@ -1,11 +1,11 @@
 ## UCB instance of WashU browser
+For Bhushan: create a UCB repo and uoload it for sharing 
+
 #To Do:
   1) Re deploy as a local instance
   2) understand the javascript dependency and add user login relms
   3) test for UI/UX similification (Remove compnents not needed)
   
-
-
 
 # WashU Epigenome Browser
 
