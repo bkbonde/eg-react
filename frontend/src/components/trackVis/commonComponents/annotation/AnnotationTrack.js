@@ -1,13 +1,13 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
-import FullDisplayMode from './FullDisplayMode';
-import Track from '../Track';
-import NumericalTrack from '../numerical/NumericalTrack';
+import FullDisplayMode from "./FullDisplayMode";
+import Track from "../Track";
+import NumericalTrack from "../numerical/NumericalTrack";
 
-import { DefaultAggregators } from '../../../../model/FeatureAggregator';
-import { AnnotationDisplayModes, NumericalDisplayModes } from '../../../../model/DisplayModes';
-import configOptionMerging from '../configOptionMerging';
+import { DefaultAggregators } from "../../../../model/FeatureAggregator";
+import { AnnotationDisplayModes, NumericalDisplayModes, VcfDisplayModes } from "../../../../model/DisplayModes";
+import configOptionMerging from "../configOptionMerging";
 
 export const DEFAULT_OPTIONS = {
     displayMode: AnnotationDisplayModes.FULL,
@@ -20,17 +20,20 @@ const withDefaultOptions = configOptionMerging(DEFAULT_OPTIONS);
 
 /**
  * A component that visualizes annotations or Features.
- * 
+ *
  * @author Silas Hsu
  */
-class AnnotationTrack extends React.PureComponent {
+export class AnnotationTrack extends React.PureComponent {
     static propTypes = Object.assign({}, Track.propsFromTrackContainer, {
         /**
          * Features to render.  Simplified since checking is expensive.
          */
         data: PropTypes.array.isRequired, // PropTypes.arrayOf(PropTypes.instanceOf(Feature)).isRequired,
         options: PropTypes.shape({
-            displayMode: PropTypes.oneOf(Object.values(AnnotationDisplayModes)).isRequired, // Display mode
+            displayMode: PropTypes.oneOfType([
+                PropTypes.oneOf(Object.values(AnnotationDisplayModes)),
+                PropTypes.oneOf(Object.values(VcfDisplayModes)),
+            ]).isRequired, // Display mode
             height: PropTypes.number, // Height in density display mode
         }).isRequired,
     });
@@ -40,14 +43,11 @@ class AnnotationTrack extends React.PureComponent {
             const numericalOptions = {
                 ...this.props.options,
                 displayMode: NumericalDisplayModes.AUTO,
-                aggregateMethod: DefaultAggregators.types.COUNT
+                aggregateMethod: DefaultAggregators.types.COUNT,
             };
-            return <NumericalTrack
-                {...this.props}
-                unit="feature density"
-                options={numericalOptions}
-            />;
-        } else { // Assume FULL display mode
+            return <NumericalTrack {...this.props} unit="feature density" options={numericalOptions} />;
+        } else {
+            // Assume FULL display mode
             return <FullDisplayMode {...this.props} />;
         }
     }

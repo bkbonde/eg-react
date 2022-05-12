@@ -1,15 +1,34 @@
 {
-   "Ruler": [
+    "Ruler": [
         {
             "type": "ruler",
             "label": "Ruler",
             "name": "Ruler"
         }
     ],
-   "Genes": [
+    "Genes": [
         {
             "name": "refGene",
             "label": "RefSeq genes",
+            "filetype": "geneAnnotation"
+        },
+        {
+            "name": "MANE_select_1.0",
+            "label": "MANE selection v1.0",
+            "filetype": "geneAnnotation"
+        },
+        {
+            "name": "gencodeV39",
+            "label": "GENCODE V39 genes",
+            "options": {
+                "categoryColors": {
+                    "coding": "rgb(0,60,179)",
+                    "nonCoding": "rgb(0,128,0)",
+                    "pseudogene": "rgb(230,0,172)",
+                    "problem": "rgb(255,0,0)",
+                    "polyA": "rgb(0,0,51)"
+                }
+            },
             "filetype": "geneAnnotation"
         },
         {
@@ -55,10 +74,17 @@
             "filetype": "geneAnnotation"
         }
     ],
+    "Transcription Factor": [
+        {
+            "name": "JASPAR Transcription Factors 2022",
+            "type": "jaspar",
+            "url": "https://hgdownload.soe.ucsc.edu/gbdb/hg38/jaspar/JASPAR2022.bb"
+        }
+    ],
     "Variation": [
         {
-            "name": "Snp",
-            "label": "Snps from Ensembl",
+            "name": "SNVs from Ensembl",
+            "label": "SNVs from Ensembl",
             "type": "snp"
         }
     ],
@@ -87,20 +113,20 @@
                 "source": "mod/mouse/humanENCODE Blacklists",
                 "download url": "http://mitra.stanford.edu/kundaje/akundaje/release/blacklists/hg38-human/hg38.blacklist.bed.gz"
             }
-         },
+        },
         {
             "type": "categorical",
             "name": "CpG Context",
             "url": "https://epgg-test.wustl.edu/d/hg38/hg38_cpgIslands_Shores_Shelves.bed.gz",
             "height": 30,
             "options": {
-              "label": "CpG Context",
-              "category": {
-                "Island": {"name": "Island", "color": "#05B678"},
-                "Shore": { "name": "Shore", "color": "#F5DC69"},
-                "Shelf": { "name": "Shelf", "color": "#07C6EC"}
-              },
-              "backgroundColor":"#071CEC"
+                "label": "CpG Context",
+                "category": {
+                    "Island": { "name": "Island", "color": "#05B678" },
+                    "Shore": { "name": "Shore", "color": "#F5DC69" },
+                    "Shelf": { "name": "Shelf", "color": "#07C6EC" }
+                },
+                "backgroundColor": "#071CEC"
             }
         },
         {
@@ -109,13 +135,13 @@
             "url": "https://epgg-test.wustl.edu/d/hg38/hg38_cpgIslands_unmasked_Shores_Shelves.bed.gz",
             "height": 30,
             "options": {
-              "label": "CpG Context (unmasked)",
-              "category": {
-                "Island": {"name": "Island", "color": "#05B678"},
-                "Shore": { "name": "Shore", "color": "#F5DC69"},
-                "Shelf": { "name": "Shelf", "color": "#07C6EC"}
-              },
-              "backgroundColor":"#071CEC"
+                "label": "CpG Context (unmasked)",
+                "category": {
+                    "Island": { "name": "Island", "color": "#05B678" },
+                    "Shore": { "name": "Shore", "color": "#F5DC69" },
+                    "Shelf": { "name": "Shelf", "color": "#07C6EC" }
+                },
+                "backgroundColor": "#071CEC"
             }
         },
         {
@@ -124,10 +150,10 @@
             "url": "https://epgg-test.wustl.edu/d/hg38/hg38_cpgIslands_category.bed.gz",
             "height": 30,
             "options": {
-              "label": "CpG Context",
-              "category": {
-                "CGI": {"name": "CGI", "color": "#FE8801"}
-              }
+                "label": "CpG Context",
+                "category": {
+                    "CGI": { "name": "CGI", "color": "#FE8801" }
+                }
             }
         },
         {
@@ -136,10 +162,10 @@
             "url": "https://epgg-test.wustl.edu/d/hg38/hg38_cpgIslands_unmasked_category.bed.gz",
             "height": 30,
             "options": {
-              "label": "CpG Context (unmasked)",
-              "category": {
-                "CGI": {"name": "CGI", "color": "#FE8801"}
-              }
+                "label": "CpG Context (unmasked)",
+                "category": {
+                    "CGI": { "name": "CGI", "color": "#FE8801" }
+                }
             }
         },
         {
@@ -155,15 +181,22 @@
                 "yMin": 0,
                 "yMax": 100
             }
-        }   
+        }
     ],
     "Genome Comparison": [
         {
-            "name": "mm10tohg38",
-            "label": "Mouse mm10 to hg38 blastz",
+            "name": "hg38tomm10",
+            "label": "Query mouse mm10 to hg38 blastz",
             "querygenome": "mm10",
             "filetype": "genomealign",
             "url": "https://vizhub.wustl.edu/public/hg38/weaver/hg38_mm10_axt.gz"
+        },
+        {
+            "name": "t2t-chm13tohg38",
+            "label": "hg38 - chm13 minimap2",
+            "querygenome": "t2t-chm13-v1.1",
+            "filetype": "genomealign",
+            "url": "https://vizhub.wustl.edu/public/hg38/weaver/querychm13tohg38.align.gz"
         },
         {
             "name": "panTro5tohg38",
@@ -177,22 +210,154 @@
             }
         },
         {
-            "name": "rheMac3tohg38",
-            "label": "Rhesus Macaque rheMac3 to hg38 blastz",
+            "name": "hg38topanTro6",
+            "label": "Query chimpanzee panTro6 to hg38 blastz",
+            "querygenome": "panTro6",
+            "filetype": "genomealign",
+            "url": "https://vizhub.wustl.edu/public/hg38/weaver/hg38TopanTro6.gz",
+            "details": {
+                "source": "UCSC Genome Browser",
+                "download url": "http://hgdownload.soe.ucsc.edu/goldenPath/hg38/vsPanTro6/"
+            }
+        },
+        {
+            "name": "hg38torheMac3",
+            "label": "Query rhesus Macaque rheMac3 to hg38 blastz",
             "querygenome": "rheMac3",
             "filetype": "genomealign",
             "url": "https://vizhub.wustl.edu/public/hg38/weaver/hg38_rheMac3_axt.gz"
         },
-         {
-            "name": "rn5tohg38",
-            "label": "Rat rn5 to hg38 blastz",
-            "querygenome": "rn5",
+        {
+            "name": "hg38torheMac8",
+            "label": "Query rhesus rheMac8 to hg38 blastz",
+            "querygenome": "rheMac8",
             "filetype": "genomealign",
-            "url": "https://vizhub.wustl.edu/public/hg38/weaver/hg38_rn5_axt.gz"
+            "url": "https://vizhub.wustl.edu/public/hg38/weaver/hg38-rheMac8.gz",
+            "details": {
+                "source": "UCSC Genome Browser",
+                "download url": "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/vsRheMac8/"
+            }
+        },
+        {
+            "name": "hg38torheMac10",
+            "label": "Query rhesus Macaque rheMac10 to hg38 blastz",
+            "querygenome": "rheMac10",
+            "filetype": "genomealign",
+            "url": "https://vizhub.wustl.edu/public/hg38/weaver/hg38-rheMac10.gz"
+        },
+        {
+            "name": "hg38topapAnu2",
+            "label": "Query baboon papAnu2 to hg38 blastz",
+            "querygenome": "papAnu2",
+            "filetype": "genomealign",
+            "url": "https://vizhub.wustl.edu/public/hg38/weaver/hg38.papAnu2.net.gz",
+            "details": {
+                "source": "UCSC Genome Browser",
+                "download url": "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/vsPapAnu2/"
+            }
+        },
+        {
+            "name": "hg38tobosTau8",
+            "label": "Query cow bosTau8 to hg38 blastz",
+            "querygenome": "bosTau8",
+            "filetype": "genomealign",
+            "url": "https://vizhub.wustl.edu/public/hg38/weaver/hg38-bosTau8.gz",
+            "details": {
+                "source": "UCSC Genome Browser",
+                "download url": "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/vsBosTau8/"
+            }
+        },
+        {
+            "name": "hg38tocalJac3",
+            "label": "Query marmoset calJac3 to hg38 blastz",
+            "querygenome": "calJac3",
+            "filetype": "genomealign",
+            "url": "https://vizhub.wustl.edu/public/hg38/weaver/hg38-calJac3.gz",
+            "details": {
+                "source": "UCSC Genome Browser",
+                "download url": "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/vsCalJac3/"
+            }
+        },
+        {
+            "name": "hg38tocalJac4",
+            "label": "Query marmoset calJac4 to hg38 blastz",
+            "querygenome": "calJac4",
+            "filetype": "genomealign",
+            "url": "https://vizhub.wustl.edu/public/hg38/weaver/hg38-calJac4.gz",
+            "details": {
+                "source": "UCSC Genome Browser",
+                "download url": "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/vsCalJac4/"
+            }
+        },
+        {
+            "name": "hg38togalGal6",
+            "label": "Query chicken galGal6 to hg38 blastz",
+            "querygenome": "galGal6",
+            "filetype": "genomealign",
+            "url": "https://vizhub.wustl.edu/public/hg38/weaver/hg38-galGal6.gz",
+            "details": {
+                "source": "UCSC Genome Browser",
+                "download url": "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/vsGalGal6/"
+            }
+        },
+        {
+            "name": "hg38togorGor4",
+            "label": "Query gorilla gorGor4 to hg38 blastz",
+            "querygenome": "gorGor4",
+            "filetype": "genomealign",
+            "url": "https://vizhub.wustl.edu/public/hg38/weaver/hg38-gorGor4.gz",
+            "details": {
+                "source": "UCSC Genome Browser",
+                "download url": "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/vsGorGor4/"
+            }
+        },
+        {
+            "name": "hg38tomm39",
+            "label": "Query mouse mm39 to hg38 blastz",
+            "querygenome": "mm39",
+            "filetype": "genomealign",
+            "url": "https://vizhub.wustl.edu/public/hg38/weaver/hg38-mm39.gz",
+            "details": {
+                "source": "UCSC Genome Browser",
+                "download url": "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/vsMm39/"
+            }
+        },
+        {
+            "name": "hg38topanTro4",
+            "label": "Query chimp panTro4 to hg38 blastz",
+            "querygenome": "panTro4",
+            "filetype": "genomealign",
+            "url": "https://vizhub.wustl.edu/public/hg38/weaver/hg38-panTro4.gz",
+            "details": {
+                "source": "UCSC Genome Browser",
+                "download url": "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/vsPanTro4/"
+            }
+        },
+        {
+            "name": "hg38torn6",
+            "label": "Query rat rn6 to hg38 blastz",
+            "querygenome": "rn6",
+            "filetype": "genomealign",
+            "url": "https://vizhub.wustl.edu/public/hg38/weaver/hg38.rn6.gz",
+            "details": {
+                "source": "UCSC Genome Browser",
+                "download url": "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/vsRn6/"
+            }
+        },
+        {
+            "name": "hg38tosusScr3",
+            "label": "Query pig susScr3 to hg38 blastz",
+            "querygenome": "susScr3",
+            "filetype": "genomealign",
+            "url": "https://vizhub.wustl.edu/public/hg38/weaver/hg38-susScr3.gz",
+            "details": {
+                "source": "UCSC Genome Browser",
+                "download url": "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/vsSusScr3/"
+            }
         }
     ],
     "Mappability": [
-         {
+        {
             "name": "24mer Mapability",
             "label": "24mer alignability",
             "filetype": "bigwig",
@@ -210,7 +375,7 @@
                 "runby": "X.Zhuo"
             }
         },
-         {
+        {
             "name": "36mer Mapability",
             "label": "36mer alignability",
             "filetype": "bigwig",
@@ -228,7 +393,7 @@
                 "runby": "X.Zhuo"
             }
         },
-         {
+        {
             "name": "50mer Mapability",
             "label": "50mer alignability",
             "filetype": "bigwig",
@@ -246,7 +411,7 @@
                 "runby": "X.Zhuo"
             }
         },
-         {
+        {
             "name": "75mer Mapability",
             "label": "75mer alignability",
             "filetype": "bigwig",
@@ -264,7 +429,7 @@
                 "runby": "X.Zhuo"
             }
         },
-         {
+        {
             "name": "100mer Mapability",
             "label": "100mer alignability",
             "filetype": "bigwig",

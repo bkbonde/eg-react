@@ -4,19 +4,42 @@ import LinearDrawingModel from '../model/LinearDrawingModel';
 import { withTrackLegendWidth } from './withTrackLegendWidth';
 import { ViewExpansion } from '../model/RegionExpander';
 import ChromosomeInterval from '../model/interval/ChromosomeInterval';
+import { HighlightInterval } from '../components/trackContainers/HighlightMenu';
 
 import './HighlightRegion.css';
 
 interface HighlightRegionProps {
     y?: number | string; // Relative Y of the top of the selection box; how far from the top of this container
     height?: number | string; // Height of the selection box
-    enteredRegion: ChromosomeInterval;
-    highlightEnteredRegion: boolean;
-    visData: ViewExpansion;
-    legendWidth: number;
+    visData: ViewExpansion; // contains data on chromosome start/stop, and window start/stop;
+    legendWidth: number; // used in calculation for highlight;
     xOffset: number;
-    highlightColor: string;
+    viewRegion: ChromosomeInterval;
+    highlights: HighlightInterval[];
 }
+
+
+/**
+ * ScreenshotUI will also need use this function, make it exportable
+ * @param interval 
+ * @param visData 
+ * @param legendWidth 
+ * @returns 
+ */
+export const getHighlightedXs = (interval: OpenInterval, visData: ViewExpansion, legendWidth: number): OpenInterval => {
+    const { viewWindowRegion, viewWindow } = visData;
+    let start, end;
+    const drawModel = new LinearDrawingModel(viewWindowRegion, viewWindow.getLength());
+    const xRegion = drawModel.baseSpanToXSpan(interval);
+    start = Math.max(legendWidth, xRegion.start + legendWidth);
+    end = xRegion.end + legendWidth;
+    if (end <= start) {
+        start = -1;
+        end = 0;
+    }
+    return new OpenInterval(start, end);
+}
+
 
 /**
  * Creates a box that highlight user's entered region, from gene or region locator
@@ -27,60 +50,46 @@ class HighlightRegion extends React.PureComponent<HighlightRegionProps> {
     static defaultProps: HighlightRegionProps = {
         y: "0px",
         height: "100%",
-        enteredRegion: null,
-        highlightEnteredRegion: true,
         visData: null,
         legendWidth: 120,
         xOffset: 0,
-        highlightColor: 'rgba(255, 255, 0, 0.3)',
+        viewRegion: null,
+        highlights: [],
     };
 
     /**
-     * Initializes state, binds event listeners, and attaches a keyboard listener to the window, which will listen for
-     * requests to cancel a selection.
-     * 
-     * @param {Object} props - props as specified by React
-     */
-
-    getHiglightedXs(chrInterval: ChromosomeInterval): OpenInterval {
-        const {legendWidth, visData} = this.props;
-        const {viewWindowRegion, viewWindow} = visData;
-        const intervals = viewWindowRegion.getNavigationContext().convertGenomeIntervalToBases(chrInterval);
-        // there will be many interval when there are gaps
-        const drawModel = new LinearDrawingModel(viewWindowRegion, viewWindow.getLength());
-        const interval = new OpenInterval(intervals[0].start, intervals[intervals.length - 1].end);
-        const xRegion = drawModel.baseSpanToXSpan(interval);
-        let start = Math.max(legendWidth, xRegion.start + legendWidth);
-        let end = xRegion.end + legendWidth;
-        if (end <= start) {
-            start = -1;
-            end = 0;
-        }
-        return new OpenInterval(start, end);
-    }
-
-    /**
+     * checks every HighlightItem in the highlightItems prop and renders those in the view region;
+     * @returns container that has highlight elements in it
      * @inheritdoc
      */
     render(): JSX.Element {
-        const {height, y, children, enteredRegion, highlightEnteredRegion, xOffset, highlightColor } = this.props;
-        const highlight = enteredRegion ? this.getHiglightedXs(enteredRegion) : null;
-        const style = highlight ? {
-            left: highlight.start + xOffset + "px",
-            top: y,
-            width: highlight.getLength() + "px",
-            height,
-            backgroundColor: highlightColor,
-        } : null;
-        const className = highlightEnteredRegion ? "HighlightRegion-box" : "HighlightRegion-none";
-        const theBox = <div className={className} style={style} />;
+        // console.log(this.props)
+        const { height, y, children, xOffset, highlights, legendWidth, visData } = this.props;
+
+        const xS = highlights.map(h => getHighlightedXs(new OpenInterval(h.start, h.end), visData, legendWidth));
+        const theBoxes = highlights.map((item, idx) => {
+            const style = {
+                left: xS[idx].start + xOffset + "px",
+                top: y,
+                width: xS[idx].getLength() + "px",
+                height,
+                backgroundColor: item.color,
+                display: item.display ? 'unset' : 'none',
+                willChange: 'left, width',
+                transition: 'left 1s, width 1s'
+            }
+
+            return (
+                <div key={idx} className="HighlightRegion-box" style={style} />
+            );
+        });
         return (
-        <div
-            style={{position: "relative", overflow: "hidden"}}
-        >
-            {theBox}
-            {children}
-        </div>
+            <div
+                style={{ position: "relative", overflow: "hidden" }}
+            >
+                {theBoxes}
+                {children}
+            </div>
         );
     }
 }

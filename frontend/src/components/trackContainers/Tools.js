@@ -1,6 +1,6 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import ButtonGroup from './ButtonGroup';
+import React from "react";
+import PropTypes from "prop-types";
+import ButtonGroup from "./ButtonGroup";
 
 export const Tools = {
     DRAG: {
@@ -21,6 +21,12 @@ export const Tools = {
 (Alt+M)`,
         cursor: "zoom-in",
     },
+    HIGHLIGHT: {
+        buttonContent: "⛅",
+        title: `Highlight tool
+(Alt+N)`,
+        cursor: "ew-resize",
+    },
 };
 
 ToolButtons.propTypes = {
@@ -33,12 +39,7 @@ export function ToolButtons(props) {
         const tool = Tools[toolName];
         const className = tool === props.selectedTool ? "btn btn-primary" : "btn btn-light";
         buttons.push(
-            <button
-                key={toolName}
-                className={className}
-                title={tool.title}
-                onClick={() => props.onToolClicked(tool)}
-            >
+            <button key={toolName} className={className} title={tool.title} onClick={() => props.onToolClicked(tool)}>
                 {tool.buttonContent}
             </button>
         );

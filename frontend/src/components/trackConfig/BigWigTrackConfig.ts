@@ -1,18 +1,26 @@
-import { NumericalTrackConfig } from './NumericalTrackConfig';
-import NumericalTrack from '../trackVis/commonComponents/numerical/NumericalTrack';
+import { TrackConfig } from "./TrackConfig";
+import { NumericalTrackConfig } from "./NumericalTrackConfig";
+import NumericalTrack, { DEFAULT_OPTIONS } from "../trackVis/commonComponents/numerical/NumericalTrack";
+import { BigGmodWorker } from "../../dataSources/WorkerTSHook";
+import LocalBigSourceGmod from "../../dataSources/big/LocalBigSourceGmod";
+import WorkerSource from "../../dataSources/worker/WorkerSource";
+import { NumericalFeature } from "../../model/Feature";
+import ChromosomeInterval from "../../model/interval/ChromosomeInterval";
+import TrackModel, { TrackOptions } from "model/TrackModel";
 
-import { BigWorker } from '../../dataSources/WorkerTSHook';
-import LocalBigSource from '../../dataSources/big/LocalBigSource';
-import WorkerSource from '../../dataSources/worker/WorkerSource';
-import { NumericalFeature } from '../../model/Feature';
-import ChromosomeInterval from '../../model/interval/ChromosomeInterval';
+export class BigWigTrackConfig extends TrackConfig {
+    private numericalTrackConfig: NumericalTrackConfig;
+    constructor(trackModel: TrackModel) {
+        super(trackModel);
+        this.numericalTrackConfig = new NumericalTrackConfig(trackModel);
+        this.setDefaultOptions(DEFAULT_OPTIONS);
+    }
 
-export class BigWigTrackConfig extends NumericalTrackConfig {
     initDataSource() {
         if (this.trackModel.fileObj) {
-            return new LocalBigSource(this.trackModel.fileObj);
+            return new LocalBigSourceGmod(this.trackModel.fileObj);
         } else {
-            return new WorkerSource(BigWorker, this.trackModel.url);
+            return new WorkerSource(BigGmodWorker, this.trackModel.url);
         }
     }
 
@@ -30,18 +38,40 @@ export class BigWigTrackConfig extends NumericalTrackConfig {
     */
     /**
      * Converter of DASFeatures to NumericalFeature.
-     * 
+     *
      * @param {DASFeature[]} data - DASFeatures to convert
      * @return {NumericalFeature[]} NumericalFeatures made from the input
+     *
+     */
+    /**
+     *
+     * Jul-24-2021 @Daofeng switched to use @gmod/bbi
      */
     formatData(data: any[]) {
-        return data.map(feature =>
-            new NumericalFeature("", new ChromosomeInterval(feature.segment, feature.min, feature.max))
-                .withValue(feature.score)
+        // console.log(data);
+        return data.map(
+            (feature) =>
+                new NumericalFeature("", new ChromosomeInterval(feature.chr, feature.start, feature.end)).withValue(
+                    feature.score
+                )
+            // new NumericalFeature("", new ChromosomeInterval(feature.segment, feature.min, feature.max)).withValue(
+            //     feature.score
+            // )
         );
+    }
+
+    /**
+     * @override
+     */
+    shouldFetchBecauseOptionChange(oldOptions: TrackOptions, newOptions: TrackOptions): boolean {
+        return oldOptions.ensemblStyle !== newOptions.ensemblStyle;
     }
 
     getComponent() {
         return NumericalTrack;
+    }
+
+    getMenuComponents() {
+        return [...this.numericalTrackConfig.getMenuComponents()];
     }
 }

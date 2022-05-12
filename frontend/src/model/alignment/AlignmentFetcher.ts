@@ -1,18 +1,28 @@
-import { AlignmentRecord } from './AlignmentRecord';
-import DisplayedRegionModel from '../DisplayedRegionModel';
-import { ViewExpansion } from '../RegionExpander';
-import { getGenomeConfig } from '../genomes/allGenomes';
+import { TrackModel } from "model/TrackModel";
+import { GenomeConfig } from "./../genomes/GenomeConfig";
+import { AlignmentRecord } from "./AlignmentRecord";
+import { BigChainAlignmentRecord } from "./BigChainAlignmentRecord";
+import DisplayedRegionModel from "../DisplayedRegionModel";
+import { ViewExpansion } from "../RegionExpander";
+// import { getGenomeConfig } from "../genomes/allGenomes";
 
-import DataSource from '../../dataSources/DataSource';
-import WorkerSource from '../../dataSources/worker/WorkerSource';
-import { GenomeAlignWorker } from '../../dataSources/WorkerTSHook';
+import DataSource from "../../dataSources/DataSource";
+import WorkerSource from "../../dataSources/worker/WorkerSource";
+import { GenomeAlignWorker } from "../../dataSources/WorkerTSHook";
+import { BigGmodWorker } from "../../dataSources/WorkerTSHook";
 
 export class AlignmentFetcher {
+    public primaryGenome: string;
     private _dataSource: DataSource;
+    public queryGenome: string;
+    public isBigChain: boolean;
 
-    constructor(public primaryGenome: string, public queryGenome: string) {
-        this.primaryGenome = primaryGenome;
-        this.queryGenome = queryGenome;
+    constructor(public primaryGenomeConfig: GenomeConfig, public queryTrack: TrackModel) {
+        this.primaryGenome = primaryGenomeConfig.genome.getName();
+        this.primaryGenomeConfig = primaryGenomeConfig;
+        this.queryTrack = queryTrack;
+        this.queryGenome = queryTrack.querygenome || queryTrack.getMetadata("genome");
+        this.isBigChain = queryTrack.type === "bigchain";
         this._dataSource = this.initDataSource();
     }
 
@@ -23,38 +33,53 @@ export class AlignmentFetcher {
     }
 
     initDataSource(): DataSource {
-        const genomeConfig = getGenomeConfig(this.primaryGenome);
-        if (!genomeConfig) {
+        // const genomeConfig = getGenomeConfig(this.primaryGenome);
+        if (!this.primaryGenomeConfig) {
             return this.makeErrorSource();
         }
-        const annotationTracks = genomeConfig.annotationTracks || {};
-        const comparisonTracks = annotationTracks["Genome Comparison"] || [];
-        const theTrack = comparisonTracks.find((track: any) => track.querygenome === this.queryGenome) || {};
-        const url = theTrack.url;
+        let url = this.queryTrack.url;
+        if (!url) {
+            const annotationTracks = this.primaryGenomeConfig.annotationTracks || {};
+            const comparisonTracks = annotationTracks["Genome Comparison"] || [];
+            const theTrack = comparisonTracks.find((track: any) => track.querygenome === this.queryGenome) || {};
+            url = theTrack.url;
+        }
         if (!url) {
             return this.makeErrorSource();
         }
-        return new WorkerSource(GenomeAlignWorker, url);
+        if (this.isBigChain) {
+            return new WorkerSource(BigGmodWorker, url);
+        } else {
+            return new WorkerSource(GenomeAlignWorker, url);
+        }
     }
 
     makeErrorSource(): DataSource {
-        const errorMessage = `No configuration found for comparison of "${this.primaryGenome}" (primary) and ` +
-            `"${this.queryGenome}" (query)`; 
+        const errorMessage =
+            `No configuration found for comparison of "${this.primaryGenome}" (primary) and ` +
+            `"${this.queryGenome}" (query)`;
         return new ErrorSource(new Error(errorMessage));
     }
 
     /**
-     * 
+     *
      * @param {DisplayedRegionModel} viewRegion - view region in the primary genome
-     * @param {number} width 
+     * @param {number} width
      */
-    async fetchAlignment(fetchRegion: DisplayedRegionModel, visData: ViewExpansion,
-        isRoughMode=true): Promise<AlignmentRecord[]>
-    {
-        const {visRegion, visWidth} = visData;
+    async fetchAlignment(
+        fetchRegion: DisplayedRegionModel,
+        visData: ViewExpansion,
+        isRoughMode = true
+    ): Promise<AlignmentRecord[]> {
+        const { visRegion, visWidth } = visData;
         const basesPerPixel = visRegion.getWidth() / visWidth;
-        const rawRecords: any[] = await this._dataSource.getData(fetchRegion, basesPerPixel, {isRoughMode});
-        return rawRecords.map(record => new AlignmentRecord(record));
+        if (this.isBigChain) {
+            const rawRecords: any[] = await this._dataSource.getData(fetchRegion, basesPerPixel, {});
+            return rawRecords.map((record) => new BigChainAlignmentRecord(record));
+        } else {
+            const rawRecords: any[] = await this._dataSource.getData(fetchRegion, basesPerPixel, { isRoughMode });
+            return rawRecords.map((record) => new AlignmentRecord(record));
+        }
     }
 }
 
